@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookMark-Website</title>
+    <style>
+      /* Simple CSS styling */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+      }
+      form {
+        margin: 20px auto;
+        padding: 10px;
+        width: 300px;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .res ul {
+        list-style: none;
+        padding: 0;
+      }
+      .res li {
+        padding: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <h1>BookMark-Website</h1>
+      <hr />
+      <br />
+    </center>
+
+    <form>
+      <label for="webTitle">Website Title: </label>
+      <input type="text" id="webTitle" required />
+      <br />
+      <label for="webUrl">Website Url: </label>
+      <input type="text" id="webUrl" required />
+      <br />
+      <button>Add</button>
+    </form>
+
+    <h2>All Bookmarks</h2>
+    <div class="res"></div>
+
+    <!-- Inline JavaScript -->
+    <script>
+      const form = document.querySelector("form");
+      const div = document.querySelector(".res");
+
+      // Load bookmarks on page load
+      window.addEventListener("load", () => {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const data = JSON.parse(localStorage.getItem(key));
+          displayBookmark(data.title, data.url);
+        }
+      });
+
+      // Add a new bookmark
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const title = event.target.webTitle.value;
+        const url = event.target.webUrl.value;
+
+        if (title && url) {
+          displayBookmark(title, url);
+
+          const data = { title, url };
+          localStorage.setItem(url, JSON.stringify(data));
+
+          form.reset();
+        }
+      });
+
+      // Function to display a bookmark
+      function displayBookmark(title, url) {
+        const ul = div.querySelector("ul") || document.createElement("ul");
+        if (!div.contains(ul)) div.appendChild(ul);
+
+        const li = document.createElement("li");
+        li.innerText = `${title} > ${url}`;
+
+        // Delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.innerText = "Delete";
+        deleteBtn.addEventListener("click", () => {
+          localStorage.removeItem(url);
+          li.remove();
+        });
+
+        // Edit button
+        const editBtn = document.createElement("button");
+        editBtn.innerText = "Edit";
+        editBtn.addEventListener("click", () => {
+          const newTitle = prompt("Edit Title", title);
+          const newUrl = prompt("Edit URL", url);
+
+          if (newTitle && newUrl) {
+            localStorage.removeItem(url); // Remove old item
+            localStorage.setItem(newUrl, JSON.stringify({ title: newTitle, url: newUrl })); // Save new item
+
+            li.innerText = `${newTitle} > ${newUrl}`; // Update displayed text
+            li.appendChild(deleteBtn); // Re-attach buttons
+            li.appendChild(editBtn);
+          }
+        });
+
+        li.appendChild(deleteBtn);
+        li.appendChild(editBtn);
+        ul.appendChild(li);
+      }
+    </script>
+  </body>
+</html>
